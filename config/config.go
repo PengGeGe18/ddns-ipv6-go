@@ -162,6 +162,7 @@ func GetConfigCached() (conf Config, err error) {
 
 // SetDefaults 首次运行时的默认配置
 func (conf *Config) SetDefaults() {
+	conf.Lang = "zh"
 	conf.Interval = DefaultInterval
 	conf.IPv4.Enable = true
 	conf.IPv4.GetType = "netInterface"
@@ -177,6 +178,9 @@ func (conf *Config) SetDefaults() {
 
 // Normalize 填充缺省值并修正非法配置
 func (conf *Config) Normalize() {
+	if strings.TrimSpace(conf.Lang) == "" {
+		conf.Lang = "zh"
+	}
 	if conf.Interval <= 0 {
 		conf.Interval = DefaultInterval
 	}
@@ -199,6 +203,7 @@ func (conf *Config) normalizeCert() {
 	if strings.TrimSpace(conf.Cert.CertbotPath) == "" {
 		conf.Cert.CertbotPath = DefaultCertbotPath
 	}
+	conf.Cert.CertbotPath = ResolveCertbotPath(conf.Cert.CertbotPath)
 	if strings.TrimSpace(conf.Cert.LinkDir) == "" {
 		conf.Cert.LinkDir = defaultLinkDir()
 	}
@@ -222,6 +227,29 @@ func (conf *Config) normalizeCert() {
 	if conf.Cert.RenewMinute < 0 || conf.Cert.RenewMinute > 59 {
 		conf.Cert.RenewMinute = 0
 	}
+}
+
+// ResolveCertbotPath 解析 certbot 可执行文件路径:
+// 配置为空或只写了命令名时, 依次尝试 PATH 与常见安装目录, 返回可用的绝对路径
+func ResolveCertbotPath(path string) string {
+	path = strings.TrimSpace(path)
+	if path == "" {
+		path = DefaultCertbotPath
+	}
+	// 已是绝对/相对路径, 直接使用
+	if strings.ContainsAny(path, `/\`) {
+		return path
+	}
+	if resolved, err := exec.LookPath(path); err == nil {
+		return resolved
+	}
+	// launchd 等精简环境下 PATH 可能不含 Homebrew 目录
+	for _, fallback := range []string{"/opt/homebrew/bin/certbot", "/usr/local/bin/certbot", "/usr/bin/certbot"} {
+		if st, err := os.Stat(fallback); err == nil && !st.IsDir() {
+			return fallback
+		}
+	}
+	return path
 }
 
 // defaultLinkDir 按平台推导默认证书目录: macOS 使用 Homebrew Nginx 的 certs 目录

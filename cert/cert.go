@@ -187,7 +187,7 @@ func issue(ip, oldIP string) (string, string) {
 	ctx, cancel := context.WithTimeout(context.Background(), commandTimeout)
 	defer cancel()
 
-	out, err := runCommand(ctx, conf.Cert.CertbotPath, buildIssueArgs(&conf, ip)...)
+	out, err := runCommand(ctx, config.ResolveCertbotPath(conf.Cert.CertbotPath), buildIssueArgs(&conf, ip)...)
 	logOutput("certbot", out)
 	if err != nil {
 		msg := fmt.Sprintf("证书申请失败: %s\n%s", err, truncate(out, 800))
@@ -272,7 +272,7 @@ func renew(force bool) (string, string) {
 	ctx, cancel := context.WithTimeout(context.Background(), commandTimeout)
 	defer cancel()
 
-	out, err := runCommand(ctx, conf.Cert.CertbotPath, args...)
+	out, err := runCommand(ctx, config.ResolveCertbotPath(conf.Cert.CertbotPath), args...)
 	logOutput("certbot", out)
 	if err != nil {
 		msg := fmt.Sprintf("证书更新失败: %s\n%s", err, truncate(out, 800))
@@ -404,7 +404,7 @@ func deleteLineage(conf *config.Config, oldIP string) {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), commandTimeout)
 	defer cancel()
-	out, err := runCommand(ctx, conf.Cert.CertbotPath, "delete", "--cert-name", name, "--non-interactive")
+	out, err := runCommand(ctx, config.ResolveCertbotPath(conf.Cert.CertbotPath), "delete", "--cert-name", name, "--non-interactive")
 	if err != nil {
 		util.Log("删除旧证书 %s 失败: %s", name, err)
 		return

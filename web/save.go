@@ -81,8 +81,10 @@ func checkAndSave(request *http.Request) string {
 	// 填充默认值并修正非法配置
 	conf.Normalize()
 
-	// 如果新密码不为空则检查是否够强, 内/外网要求强度不同
-	conf.Username = usernameNew
+	// 用户名留空时保持原用户名不变; 密码留空时不修改密码
+	if usernameNew != "" {
+		conf.Username = usernameNew
+	}
 	if passwordNew != "" {
 		hashedPwd, err := conf.CheckPassword(passwordNew)
 		if err != nil {

@@ -49,51 +49,51 @@
 
         <!-- 运行状态 -->
         <div class="portlet" style="margin-top: 15px">
-          <h5 class="portlet__head">运行状态</h5>
+          <h5 class="portlet__head" data-i18n="StatusTitle">运行状态</h5>
           <div class="portlet__body">
             <table class="table table-sm table-borderless mb-2">
               <tbody>
                 <tr>
-                  <th style="width: 170px">当前 IPv4</th>
+                  <th style="width: 170px" data-i18n="StatusCurrentIPv4">当前 IPv4</th>
                   <td id="stIPv4">-</td>
                 </tr>
                 <tr>
-                  <th>当前 IPv6</th>
+                  <th data-i18n="StatusCurrentIPv6">当前 IPv6</th>
                   <td id="stIPv6">-</td>
                 </tr>
                 <tr>
-                  <th>上次检测</th>
+                  <th data-i18n="StatusLastCheck">上次检测</th>
                   <td id="stLastCheck">-</td>
                 </tr>
                 <tr>
-                  <th>IPv6 最近变化</th>
+                  <th data-i18n="StatusLastIPv6Change">IPv6 最近变化</th>
                   <td id="stLastChange">-</td>
                 </tr>
                 <tr>
-                  <th>证书包含地址</th>
+                  <th data-i18n="StatusCertIPs">证书包含地址</th>
                   <td id="stCertIPs">-</td>
                 </tr>
                 <tr>
-                  <th>证书到期时间</th>
+                  <th data-i18n="StatusCertNotAfter">证书到期时间</th>
                   <td id="stCertNotAfter">-</td>
                 </tr>
                 <tr>
-                  <th>证书任务</th>
+                  <th data-i18n="StatusCertTask">证书任务</th>
                   <td id="stCertTask">-</td>
                 </tr>
                 <tr>
-                  <th>下次自动更新</th>
+                  <th data-i18n="StatusNextRenew">下次自动更新</th>
                   <td id="stNextRenew">-</td>
                 </tr>
                 <tr>
-                  <th>最近结果</th>
+                  <th data-i18n="StatusLastResult">最近结果</th>
                   <td id="stCertMessage" style="white-space: pre-wrap; word-break: break-all;">-</td>
                 </tr>
               </tbody>
             </table>
-            <button class="btn btn-primary btn-sm" id="checkNowBtn">立即检测</button>
-            <button class="btn btn-info btn-sm" id="renewCertBtn">立即更新证书</button>
-            <small class="form-text text-muted" style="margin-top: 8px">
+            <button class="btn btn-primary btn-sm" id="checkNowBtn" data-i18n="CheckNowBtn">立即检测</button>
+            <button class="btn btn-info btn-sm" id="renewCertBtn" data-i18n="RenewCertBtn">立即更新证书</button>
+            <small class="form-text text-muted" style="margin-top: 8px" data-i18n="ManualRenewHelp">
               手动更新会强制续期证书，请注意 Let's Encrypt 的频率限制。
             </small>
           </div>
@@ -101,46 +101,46 @@
 
         <!-- IP 检测设置 -->
         <div class="portlet">
-          <h5 class="portlet__head">IP 检测</h5>
+          <h5 class="portlet__head" data-i18n="IpCheckTitle">IP 检测</h5>
           <div class="portlet__body">
             <div class="form-group row">
-              <label for="Interval" class="col-sm-2 col-form-label">检测频率</label>
+              <label for="Interval" class="col-sm-2 col-form-label" data-i18n="IntervalLabel">检测频率</label>
               <div class="col-sm-10">
                 <div class="input-group" style="max-width: 260px">
                   <input type="number" class="form-control form" id="Interval" min="5" max="86400"
                     value="{{.Conf.Interval}}" />
-                  <div class="input-group-append"><span class="input-group-text">秒</span></div>
+                  <div class="input-group-append"><span class="input-group-text" data-i18n="SecondsUnit">秒</span></div>
                 </div>
-                <small class="form-text text-muted">最小 5 秒，保存后立即以新频率检测。</small>
+                <small class="form-text text-muted" data-i18n="IntervalHelp">最小 5 秒，保存后立即以新频率检测。</small>
               </div>
             </div>
 
             <div id="IPv4Section">
               <h6 style="margin-top: 18px">IPv4</h6>
             <div class="form-group row">
-              <label for="IPv4Enable" class="col-sm-2 col-form-label">启用</label>
+              <label for="IPv4Enable" class="col-sm-2 col-form-label" data-i18n="EnableLabel">启用</label>
               <div class="col-sm-10">
                 <input type="checkbox" class="form-check-inline" id="IPv4Enable"
                   {{if .Conf.IPv4.Enable}}checked{{end}} />
               </div>
             </div>
             <div class="form-group row">
-              <label class="col-sm-2 col-form-label">获取方式</label>
+              <label class="col-sm-2 col-form-label" data-i18n="GetTypeLabel">获取方式</label>
               <div class="col-sm-10">
                 <div class="form-check form-check-inline">
                   <input class="form-check-input" type="radio" name="IPv4GetType" id="IPv4NetInterfaceRadio"
                     value="netInterface" {{if eq .Conf.IPv4.GetType "netInterface"}}checked{{end}} />
-                  <label class="form-check-label" for="IPv4NetInterfaceRadio">网卡</label>
+                  <label class="form-check-label" for="IPv4NetInterfaceRadio" data-i18n="NetInterfaceOption">网卡</label>
                 </div>
                 <div class="form-check form-check-inline">
                   <input class="form-check-input" type="radio" name="IPv4GetType" id="IPv4UrlRadio" value="url"
                     {{if eq .Conf.IPv4.GetType "url"}}checked{{end}} />
-                  <label class="form-check-label" for="IPv4UrlRadio">接口</label>
+                  <label class="form-check-label" for="IPv4UrlRadio" data-i18n="UrlOption">接口</label>
                 </div>
                 <div class="form-check form-check-inline">
                   <input class="form-check-input" type="radio" name="IPv4GetType" id="IPv4CmdRadio" value="cmd"
                     {{if eq .Conf.IPv4.GetType "cmd"}}checked{{end}} />
-                  <label class="form-check-label" for="IPv4CmdRadio">命令</label>
+                  <label class="form-check-label" for="IPv4CmdRadio" data-i18n="CmdOption">命令</label>
                 </div>
                 <select class="form-control" id="IPv4NetInterface" data-visible="netInterface">
                   {{range .Ipv4}}
@@ -150,9 +150,11 @@
                   {{end}}
                 </select>
                 <input type="text" class="form-control form" id="IPv4Url" data-visible="url"
-                  value="{{.Conf.IPv4.URL}}" placeholder="接口地址，多个用逗号分隔" />
+                  value="{{.Conf.IPv4.URL}}" placeholder="接口地址，多个用逗号分隔"
+                  data-i18n-attr="placeholder:UrlPlaceholder" />
                 <input type="text" class="form-control form" id="IPv4Cmd" data-visible="cmd"
-                  value="{{.Conf.IPv4.Cmd}}" placeholder="获取 IPv4 的命令" />
+                  value="{{.Conf.IPv4.Cmd}}" placeholder="获取 IPv4 的命令"
+                  data-i18n-attr="placeholder:Ipv4CmdPlaceholder" />
               </div>
             </div>
             </div>
@@ -160,29 +162,29 @@
             <div id="IPv6Section">
             <h6 style="margin-top: 18px">IPv6</h6>
             <div class="form-group row">
-              <label for="IPv6Enable" class="col-sm-2 col-form-label">启用</label>
+              <label for="IPv6Enable" class="col-sm-2 col-form-label" data-i18n="EnableLabel">启用</label>
               <div class="col-sm-10">
                 <input type="checkbox" class="form-check-inline" id="IPv6Enable"
                   {{if .Conf.IPv6.Enable}}checked{{end}} />
               </div>
             </div>
             <div class="form-group row">
-              <label class="col-sm-2 col-form-label">获取方式</label>
+              <label class="col-sm-2 col-form-label" data-i18n="GetTypeLabel">获取方式</label>
               <div class="col-sm-10">
                 <div class="form-check form-check-inline">
                   <input class="form-check-input" type="radio" name="IPv6GetType" id="IPv6NetInterfaceRadio"
                     value="netInterface" {{if eq .Conf.IPv6.GetType "netInterface"}}checked{{end}} />
-                  <label class="form-check-label" for="IPv6NetInterfaceRadio">网卡</label>
+                  <label class="form-check-label" for="IPv6NetInterfaceRadio" data-i18n="NetInterfaceOption">网卡</label>
                 </div>
                 <div class="form-check form-check-inline">
                   <input class="form-check-input" type="radio" name="IPv6GetType" id="IPv6UrlRadio" value="url"
                     {{if eq .Conf.IPv6.GetType "url"}}checked{{end}} />
-                  <label class="form-check-label" for="IPv6UrlRadio">接口</label>
+                  <label class="form-check-label" for="IPv6UrlRadio" data-i18n="UrlOption">接口</label>
                 </div>
                 <div class="form-check form-check-inline">
                   <input class="form-check-input" type="radio" name="IPv6GetType" id="IPv6CmdRadio" value="cmd"
                     {{if eq .Conf.IPv6.GetType "cmd"}}checked{{end}} />
-                  <label class="form-check-label" for="IPv6CmdRadio">命令</label>
+                  <label class="form-check-label" for="IPv6CmdRadio" data-i18n="CmdOption">命令</label>
                 </div>
                 <select class="form-control" id="IPv6NetInterface" data-visible="netInterface">
                   {{range .Ipv6}}
@@ -192,17 +194,20 @@
                   {{end}}
                 </select>
                 <input type="text" class="form-control form" id="IPv6Url" data-visible="url"
-                  value="{{.Conf.IPv6.URL}}" placeholder="接口地址，多个用逗号分隔" />
+                  value="{{.Conf.IPv6.URL}}" placeholder="接口地址，多个用逗号分隔"
+                  data-i18n-attr="placeholder:UrlPlaceholder" />
                 <input type="text" class="form-control form" id="IPv6Cmd" data-visible="cmd"
-                  value="{{.Conf.IPv6.Cmd}}" placeholder="获取 IPv6 的命令" />
+                  value="{{.Conf.IPv6.Cmd}}" placeholder="获取 IPv6 的命令"
+                  data-i18n-attr="placeholder:Ipv6CmdPlaceholder" />
               </div>
             </div>
             <div class="form-group row" data-visible="netInterface">
-              <label for="IPv6Reg" class="col-sm-2 col-form-label">IPv6 匹配</label>
+              <label for="IPv6Reg" class="col-sm-2 col-form-label" data-i18n="Ipv6MatchLabel">IPv6 匹配</label>
               <div class="col-sm-10">
                 <input type="text" class="form-control form" id="IPv6Reg" value="{{.Conf.IPv6.Ipv6Reg}}"
-                  placeholder="留空使用第一个地址；@2 表示第二个地址；也可填正则表达式" />
-                <small class="form-text text-muted">网卡有多个 IPv6 时，可用 @序号 或正则表达式选择。</small>
+                  placeholder="留空使用第一个地址；@2 表示第二个地址；也可填正则表达式"
+                  data-i18n-attr="placeholder:Ipv6MatchPlaceholder" />
+                <small class="form-text text-muted" data-i18n="Ipv6MatchHelp">网卡有多个 IPv6 时，可用 @序号 或正则表达式选择。</small>
               </div>
             </div>
             </div>
@@ -211,38 +216,40 @@
 
         <!-- Webhook -->
         <div class="portlet">
-          <h5 class="portlet__head">Webhook 通知</h5>
+          <h5 class="portlet__head" data-i18n="WebhookTitle">Webhook 通知</h5>
           <div class="portlet__body">
             <div class="form-group row">
-              <label for="WebhookURL" class="col-sm-2 col-form-label">URL</label>
+              <label for="WebhookURL" class="col-sm-2 col-form-label" data-i18n="WebhookUrlLabel">URL</label>
               <div class="col-sm-10">
                 <input class="form-control form" id="WebhookURL" value="{{.Conf.WebhookURL}}"
-                  placeholder="IPv6 变化时请求的地址" />
+                  placeholder="IPv6 变化时请求的地址" data-i18n-attr="placeholder:WebhookUrlPlaceholder" />
               </div>
             </div>
             <div class="form-group row">
-              <label for="WebhookRequestBody" class="col-sm-2 col-form-label">RequestBody</label>
+              <label for="WebhookRequestBody" class="col-sm-2 col-form-label" data-i18n="WebhookRequestBodyLabel">RequestBody</label>
               <div class="col-sm-10">
                 <textarea class="form-control form" id="WebhookRequestBody" rows="3"
-                  placeholder='例如: {"ipv6":"#{ipv6Addr}","old":"#{oldIpv6Addr}"}'>{{.Conf.WebhookRequestBody}}</textarea>
-                <small class="form-text text-muted">
+                  placeholder='例如: {"ipv6":"#{ipv6Addr}","old":"#{oldIpv6Addr}"}'
+                  data-i18n-attr="placeholder:WebhookRequestBodyPlaceholder">{{.Conf.WebhookRequestBody}}</textarea>
+                <small class="form-text text-muted" data-i18n-html="WebhookRequestBodyHelp">
                   留空为 GET 请求，填写则使用 POST。支持占位符：
                   <code>#{ipv4Addr}</code> <code>#{ipv6Addr}</code> <code>#{oldIpv6Addr}</code> <code>#{timestamp}</code>
                 </small>
               </div>
             </div>
             <div class="form-group row">
-              <label for="WebhookHeaders" class="col-sm-2 col-form-label">Headers</label>
+              <label for="WebhookHeaders" class="col-sm-2 col-form-label" data-i18n="WebhookHeadersLabel">Headers</label>
               <div class="col-sm-10">
                 <textarea class="form-control form" id="WebhookHeaders" rows="2"
-                  placeholder="每行一个，例如: Authorization: Bearer xxx">{{.Conf.WebhookHeaders}}</textarea>
+                  placeholder="每行一个，例如: Authorization: Bearer xxx"
+                  data-i18n-attr="placeholder:WebhookHeadersPlaceholder">{{.Conf.WebhookHeaders}}</textarea>
               </div>
             </div>
             <div class="form-group row">
               <label class="col-sm-2 col-form-label"></label>
               <div class="col-sm-10">
-                <button class="btn btn-primary btn-sm" id="webhookTestBtn">测试 Webhook</button>
-                <small class="form-text text-muted">使用假数据发送一次请求，实际配置请先保存。</small>
+                <button class="btn btn-primary btn-sm" id="webhookTestBtn" data-i18n="TestWebhookBtn">测试 Webhook</button>
+                <small class="form-text text-muted" data-i18n="TestWebhookHelp">使用假数据发送一次请求，实际配置请先保存。</small>
               </div>
             </div>
           </div>
@@ -250,117 +257,123 @@
 
         <!-- 证书设置 -->
         <div class="portlet">
-          <h5 class="portlet__head">Certbot 证书</h5>
+          <h5 class="portlet__head" data-i18n="CertTitle">Certbot 证书</h5>
           <div class="portlet__body">
             <div class="form-group row">
-              <label for="CertEnable" class="col-sm-2 col-form-label">自动申请</label>
+              <label for="CertEnable" class="col-sm-2 col-form-label" data-i18n="CertAutoIssueLabel">自动申请</label>
               <div class="col-sm-10">
                 <input type="checkbox" class="form-check-inline" id="CertEnable"
                   {{if .Conf.Cert.Enable}}checked{{end}} />
-                <small class="form-text text-muted">IPv6 变化或证书不匹配时自动申请证书，并重启 Nginx。</small>
+                <small class="form-text text-muted" data-i18n="CertAutoIssueHelp">IPv6 变化或证书不匹配时自动申请证书，并重启 Nginx。</small>
               </div>
             </div>
             <div class="form-group row">
-              <label for="CertbotPath" class="col-sm-2 col-form-label">certbot 路径</label>
+              <label for="CertbotPath" class="col-sm-2 col-form-label" data-i18n="CertbotPathLabel">certbot 路径</label>
               <div class="col-sm-10">
                 <input class="form-control form" id="CertbotPath" value="{{.Conf.Cert.CertbotPath}}"
-                  placeholder="certbot 或 /usr/bin/certbot" />
+                  placeholder="certbot 或 /usr/bin/certbot"
+                  data-i18n-attr="placeholder:CertbotPathPlaceholder" />
               </div>
             </div>
             <div class="form-group row">
-              <label for="CertEmail" class="col-sm-2 col-form-label">邮箱</label>
+              <label for="CertEmail" class="col-sm-2 col-form-label" data-i18n="CertEmailLabel">邮箱</label>
               <div class="col-sm-10">
                 <input class="form-control form" id="CertEmail" value="{{.Conf.Cert.Email}}"
-                  placeholder="可选，用于证书到期提醒" />
+                  placeholder="可选，用于证书到期提醒"
+                  data-i18n-attr="placeholder:CertEmailPlaceholder" />
               </div>
             </div>
             <div class="form-group row">
-              <label for="CertChallenge" class="col-sm-2 col-form-label">验证方式</label>
+              <label for="CertChallenge" class="col-sm-2 col-form-label" data-i18n="CertChallengeLabel">验证方式</label>
               <div class="col-sm-10">
                 <select class="form-control" id="CertChallenge">
-                  <option value="standalone" {{if eq .Conf.Cert.Challenge "standalone"}}selected{{end}}>
+                  <option value="standalone" {{if eq .Conf.Cert.Challenge "standalone"}}selected{{end}}
+                    data-i18n="CertChallengeStandalone">
                     standalone（临时监听 80 端口）
                   </option>
-                  <option value="webroot" {{if eq .Conf.Cert.Challenge "webroot"}}selected{{end}}>
+                  <option value="webroot" {{if eq .Conf.Cert.Challenge "webroot"}}selected{{end}}
+                    data-i18n="CertChallengeWebroot">
                     webroot（使用已有网站目录）
                   </option>
                 </select>
               </div>
             </div>
             <div class="form-group row">
-              <label for="CertWebroot" class="col-sm-2 col-form-label">Webroot</label>
+              <label for="CertWebroot" class="col-sm-2 col-form-label" data-i18n="CertWebrootLabel">Webroot</label>
               <div class="col-sm-10">
                 <input class="form-control form" id="CertWebroot" value="{{.Conf.Cert.Webroot}}"
                   placeholder="/var/www/html" />
               </div>
             </div>
             <div class="form-group row">
-              <label for="CertProfile" class="col-sm-2 col-form-label">Certificate Profile</label>
+              <label for="CertProfile" class="col-sm-2 col-form-label" data-i18n="CertProfileLabel">Certificate Profile</label>
               <div class="col-sm-10">
                 <input class="form-control form" id="CertProfile" value="{{.Conf.Cert.Profile}}"
                   placeholder="shortlived" />
-                <small class="form-text text-muted">
+                <small class="form-text text-muted" data-i18n-html="CertProfileHelp">
                   Let's Encrypt 的 IP 证书需使用 <code>shortlived</code>（certbot 5.3+）。
                 </small>
               </div>
             </div>
             <div class="form-group row">
-              <label for="CertLinkDir" class="col-sm-2 col-form-label">证书目录</label>
+              <label for="CertLinkDir" class="col-sm-2 col-form-label" data-i18n="CertLinkDirLabel">证书目录</label>
               <div class="col-sm-10">
                 <input class="form-control form" id="CertLinkDir" value="{{.Conf.Cert.LinkDir}}" />
-                <small class="form-text text-muted">
+                <small class="form-text text-muted" data-i18n-html="CertLinkDirHelp">
                   Nginx 8443 端口证书应指向 <code>该目录/fullchain.pem</code> 与 <code>该目录/privkey.pem</code>，
                   证书申请/续期后会自动复制并覆盖此处文件（目录不存在会自动创建）。
                 </small>
               </div>
             </div>
             <div class="form-group row">
-              <label for="CertOwner" class="col-sm-2 col-form-label">证书所属用户</label>
+              <label for="CertOwner" class="col-sm-2 col-form-label" data-i18n="CertOwnerLabel">证书所属用户</label>
               <div class="col-sm-10">
                 <input class="form-control form" id="CertOwner" value="{{.Conf.Cert.Owner}}"
-                  placeholder="例如: pengge（留空则仅 root 可读私钥）" />
-                <small class="form-text text-muted">
+                  placeholder="例如: pengge（留空则仅 root 可读私钥）"
+                  data-i18n-attr="placeholder:CertOwnerPlaceholder" />
+                <small class="form-text text-muted" data-i18n-html="CertOwnerHelp">
                   Nginx 以非 root 运行（如 macOS 的 <code>brew services start nginx</code>）时填写其运行用户，
                   程序会以 root 身份把证书 chown 给该用户，避免加载证书时权限不足。
                 </small>
               </div>
             </div>
             <div class="form-group row">
-              <label for="CertNginxReloadCmd" class="col-sm-2 col-form-label">重启 Nginx 命令</label>
+              <label for="CertNginxReloadCmd" class="col-sm-2 col-form-label" data-i18n="CertNginxReloadLabel">重启 Nginx 命令</label>
               <div class="col-sm-10">
                 <input class="form-control form" id="CertNginxReloadCmd" value="{{.Conf.Cert.NginxReloadCmd}}"
                   placeholder="systemctl restart nginx" />
               </div>
             </div>
             <div class="form-group row">
-              <label for="CertExtraArgs" class="col-sm-2 col-form-label">附加参数</label>
+              <label for="CertExtraArgs" class="col-sm-2 col-form-label" data-i18n="CertExtraArgsLabel">附加参数</label>
               <div class="col-sm-10">
                 <input class="form-control form" id="CertExtraArgs" value="{{.Conf.Cert.ExtraArgs}}"
-                  placeholder="例如: --key-type ecdsa" />
+                  placeholder="例如: --key-type ecdsa"
+                  data-i18n-attr="placeholder:CertExtraArgsPlaceholder" />
               </div>
             </div>
             <div class="form-group row">
-              <label for="CertDailyRenew" class="col-sm-2 col-form-label">每日定时更新</label>
+              <label for="CertDailyRenew" class="col-sm-2 col-form-label" data-i18n="CertDailyRenewLabel">每日定时更新</label>
               <div class="col-sm-10">
                 <input type="checkbox" class="form-check-inline" id="CertDailyRenew"
                   {{if .Conf.Cert.DailyRenew}}checked{{end}} />
                 <div class="form-inline" style="margin-top: 8px">
-                  <label for="CertRenewHour" class="mr-2">时间</label>
+                  <label for="CertRenewHour" class="mr-2" data-i18n="CertRenewTimeLabel">时间</label>
                   <input type="number" class="form-control form mr-2" id="CertRenewHour" min="0" max="23"
                     style="width: 90px" value="{{.Conf.Cert.RenewHour}}" />
-                  <span class="mr-2">时</span>
+                  <span class="mr-2" data-i18n="HourUnit">时</span>
                   <input type="number" class="form-control form mr-2" id="CertRenewMinute" min="0" max="59"
                     style="width: 90px" value="{{.Conf.Cert.RenewMinute}}" />
-                  <span>分</span>
+                  <span data-i18n="MinuteUnit">分</span>
                 </div>
               </div>
             </div>
             <div class="form-group row">
-              <label for="CertDeleteOld" class="col-sm-2 col-form-label">删除旧证书</label>
+              <label for="CertDeleteOld" class="col-sm-2 col-form-label" data-i18n="CertDeleteOldLabel">删除旧证书</label>
               <div class="col-sm-10">
                 <input type="checkbox" class="form-check-inline" id="CertDeleteOld"
                   {{if .Conf.Cert.DeleteOld}}checked{{end}} />
-                <small class="form-text text-muted">新证书部署成功后删除旧 IPv6 地址对应的证书。</small>
+                <small class="form-text text-muted" data-i18n="CertDeleteOldHelp">新证书部署成功后删除旧 IPv6 地址对应的证书。</small>
               </div>
             </div>
           </div>
@@ -368,32 +381,32 @@
 
         <!-- 其它 -->
         <div class="portlet">
-          <h5 class="portlet__head">其它</h5>
+          <h5 class="portlet__head" data-i18n="OthersTitle">其它</h5>
           <div class="portlet__body">
             <div class="form-group row">
-              <label for="NotAllowWanAccess" class="col-sm-2 col-form-label">禁止公网访问</label>
+              <label for="NotAllowWanAccess" class="col-sm-2 col-form-label" data-i18n="Deny from WAN">禁止公网访问</label>
               <div class="col-sm-10">
                 <input type="checkbox" class="form-check-inline" id="NotAllowWanAccess"
                   {{if .Conf.NotAllowWanAccess}}checked{{end}} />
               </div>
             </div>
             <div class="form-group row">
-              <label for="Username" class="col-sm-2 col-form-label">用户名</label>
+              <label for="Username" class="col-sm-2 col-form-label" data-i18n="Username">用户名</label>
               <div class="col-sm-10">
                 <input class="form-control form" id="Username" value="{{.Conf.Username}}" autocomplete="username" />
               </div>
             </div>
             <div class="form-group row">
-              <label for="Password" class="col-sm-2 col-form-label">密码</label>
+              <label for="Password" class="col-sm-2 col-form-label" data-i18n="Password">密码</label>
               <div class="col-sm-10">
                 <input class="form-control form" type="password" id="Password" autocomplete="new-password"
-                  placeholder="留空则不修改密码" />
+                  placeholder="留空则不修改密码" data-i18n-attr="placeholder:PasswordPlaceholder" />
               </div>
             </div>
           </div>
         </div>
 
-        <button class="btn btn-primary submit_btn" style="margin-bottom: 16px">保存</button>
+        <button class="btn btn-primary submit_btn" style="margin-bottom: 16px" data-i18n="Save">保存</button>
       </div>
 
       <div class="logs-panel col-md-6 offset-md-3" style="visibility: hidden" id="logs-panel">

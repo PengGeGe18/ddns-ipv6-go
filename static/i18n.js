@@ -169,8 +169,8 @@ const I18N_MAP = {
     `
   },
   'WebhookRequestBodyHelp': {
-    'en': 'If RequestBody is empty, it is a GET request, otherwise it is a POST request. Supported variables are the same as above',
-    'zh-cn': '如果 RequestBody 为空, 则为 GET 请求, 否则为 POST 请求。支持的变量同上'
+    'en': 'Leave empty for a GET request; if filled in, a POST request is used. Supported placeholders: <code>#{ipv4Addr}</code> <code>#{ipv6Addr}</code> <code>#{oldIpv6Addr}</code> <code>#{timestamp}</code>',
+    'zh-cn': '留空为 GET 请求，填写则使用 POST。支持占位符： <code>#{ipv4Addr}</code> <code>#{ipv6Addr}</code> <code>#{oldIpv6Addr}</code> <code>#{timestamp}</code>'
   },
   'WebhookHeadersHelp': {
     'en': 'One header per line, such as: Authorization: Bearer API_KEY',
@@ -261,6 +261,275 @@ const I18N_MAP = {
   "extParamHelp": {
     'en': 'Optional. If you are using a Vercel Team account, please fill in the Team ID',
     'zh-cn': '可选项，如果您使用的是 Vercel 团队账户，请填写团队 ID'
+  },
+  // writing.html - 运行状态
+  'StatusTitle': {
+    'en': 'Status',
+    'zh-cn': '运行状态'
+  },
+  'StatusCurrentIPv4': {
+    'en': 'Current IPv4',
+    'zh-cn': '当前 IPv4'
+  },
+  'StatusCurrentIPv6': {
+    'en': 'Current IPv6',
+    'zh-cn': '当前 IPv6'
+  },
+  'StatusLastCheck': {
+    'en': 'Last check',
+    'zh-cn': '上次检测'
+  },
+  'StatusLastIPv6Change': {
+    'en': 'Last IPv6 change',
+    'zh-cn': 'IPv6 最近变化'
+  },
+  'StatusCertIPs': {
+    'en': 'Certificate IPs',
+    'zh-cn': '证书包含地址'
+  },
+  'StatusCertNotAfter': {
+    'en': 'Certificate expiry',
+    'zh-cn': '证书到期时间'
+  },
+  'StatusCertTask': {
+    'en': 'Certificate task',
+    'zh-cn': '证书任务'
+  },
+  'StatusNextRenew': {
+    'en': 'Next auto renewal',
+    'zh-cn': '下次自动更新'
+  },
+  'StatusLastResult': {
+    'en': 'Last result',
+    'zh-cn': '最近结果'
+  },
+  'CheckNowBtn': {
+    'en': 'Check now',
+    'zh-cn': '立即检测'
+  },
+  'RenewCertBtn': {
+    'en': 'Renew certificate now',
+    'zh-cn': '立即更新证书'
+  },
+  'ManualRenewHelp': {
+    'en': "Manual renewal forces certificate renewal. Please be aware of Let's Encrypt rate limits.",
+    'zh-cn': "手动更新会强制续期证书，请注意 Let's Encrypt 的频率限制。"
+  },
+  // writing.html - IP 检测
+  'IpCheckTitle': {
+    'en': 'IP Detection',
+    'zh-cn': 'IP 检测'
+  },
+  'IntervalLabel': {
+    'en': 'Check interval',
+    'zh-cn': '检测频率'
+  },
+  'SecondsUnit': {
+    'en': 's',
+    'zh-cn': '秒'
+  },
+  'IntervalHelp': {
+    'en': 'Minimum 5 seconds. The new interval takes effect immediately after saving.',
+    'zh-cn': '最小 5 秒，保存后立即以新频率检测。'
+  },
+  'EnableLabel': {
+    'en': 'Enable',
+    'zh-cn': '启用'
+  },
+  'GetTypeLabel': {
+    'en': 'Get method',
+    'zh-cn': '获取方式'
+  },
+  'NetInterfaceOption': {
+    'en': 'Network interface',
+    'zh-cn': '网卡'
+  },
+  'UrlOption': {
+    'en': 'URL',
+    'zh-cn': '接口'
+  },
+  'CmdOption': {
+    'en': 'Command',
+    'zh-cn': '命令'
+  },
+  'UrlPlaceholder': {
+    'en': 'Interface URLs, separated by commas',
+    'zh-cn': '接口地址，多个用逗号分隔'
+  },
+  'Ipv4CmdPlaceholder': {
+    'en': 'Command to get IPv4',
+    'zh-cn': '获取 IPv4 的命令'
+  },
+  'Ipv6CmdPlaceholder': {
+    'en': 'Command to get IPv6',
+    'zh-cn': '获取 IPv6 的命令'
+  },
+  'Ipv6MatchLabel': {
+    'en': 'IPv6 match',
+    'zh-cn': 'IPv6 匹配'
+  },
+  'Ipv6MatchPlaceholder': {
+    'en': 'Leave empty to use the first address; @2 means the second address; a regular expression is also supported',
+    'zh-cn': '留空使用第一个地址；@2 表示第二个地址；也可填正则表达式'
+  },
+  'Ipv6MatchHelp': {
+    'en': 'When the network interface has multiple IPv6 addresses, use @index or a regular expression to select one.',
+    'zh-cn': '网卡有多个 IPv6 时，可用 @序号 或正则表达式选择。'
+  },
+  // writing.html - Webhook
+  'WebhookTitle': {
+    'en': 'Webhook Notification',
+    'zh-cn': 'Webhook 通知'
+  },
+  'WebhookUrlLabel': {
+    'en': 'URL',
+    'zh-cn': 'URL'
+  },
+  'WebhookUrlPlaceholder': {
+    'en': 'URL to request when IPv6 changes',
+    'zh-cn': 'IPv6 变化时请求的地址'
+  },
+  'WebhookRequestBodyLabel': {
+    'en': 'RequestBody',
+    'zh-cn': 'RequestBody'
+  },
+  'WebhookRequestBodyPlaceholder': {
+    'en': 'e.g. {"ipv6":"#{ipv6Addr}","old":"#{oldIpv6Addr}"}',
+    'zh-cn': '例如: {"ipv6":"#{ipv6Addr}","old":"#{oldIpv6Addr}"}'
+  },
+  'WebhookHeadersLabel': {
+    'en': 'Headers',
+    'zh-cn': 'Headers'
+  },
+  'WebhookHeadersPlaceholder': {
+    'en': 'One per line, e.g. Authorization: Bearer xxx',
+    'zh-cn': '每行一个，例如: Authorization: Bearer xxx'
+  },
+  'TestWebhookBtn': {
+    'en': 'Test Webhook',
+    'zh-cn': '测试 Webhook'
+  },
+  'TestWebhookHelp': {
+    'en': 'Send one request with fake data. Please save the actual configuration first.',
+    'zh-cn': '使用假数据发送一次请求，实际配置请先保存。'
+  },
+  // writing.html - Certbot 证书
+  'CertTitle': {
+    'en': 'Certbot Certificate',
+    'zh-cn': 'Certbot 证书'
+  },
+  'CertAutoIssueLabel': {
+    'en': 'Auto issue',
+    'zh-cn': '自动申请'
+  },
+  'CertAutoIssueHelp': {
+    'en': 'Automatically request a certificate when IPv6 changes or the certificate does not match, and restart Nginx.',
+    'zh-cn': 'IPv6 变化或证书不匹配时自动申请证书，并重启 Nginx。'
+  },
+  'CertbotPathLabel': {
+    'en': 'certbot path',
+    'zh-cn': 'certbot 路径'
+  },
+  'CertbotPathPlaceholder': {
+    'en': 'certbot or /usr/bin/certbot',
+    'zh-cn': 'certbot 或 /usr/bin/certbot'
+  },
+  'CertEmailLabel': {
+    'en': 'Email',
+    'zh-cn': '邮箱'
+  },
+  'CertEmailPlaceholder': {
+    'en': 'Optional, used for certificate expiry reminders',
+    'zh-cn': '可选，用于证书到期提醒'
+  },
+  'CertChallengeLabel': {
+    'en': 'Challenge type',
+    'zh-cn': '验证方式'
+  },
+  'CertChallengeStandalone': {
+    'en': 'standalone (temporarily listen on port 80)',
+    'zh-cn': 'standalone（临时监听 80 端口）'
+  },
+  'CertChallengeWebroot': {
+    'en': 'webroot (use an existing website directory)',
+    'zh-cn': 'webroot（使用已有网站目录）'
+  },
+  'CertWebrootLabel': {
+    'en': 'Webroot',
+    'zh-cn': 'Webroot'
+  },
+  'CertProfileLabel': {
+    'en': 'Certificate Profile',
+    'zh-cn': 'Certificate Profile'
+  },
+  'CertProfileHelp': {
+    'en': "Let's Encrypt IP certificates require <code>shortlived</code> (certbot 5.3+).",
+    'zh-cn': "Let's Encrypt 的 IP 证书需使用 <code>shortlived</code>（certbot 5.3+）。"
+  },
+  'CertLinkDirLabel': {
+    'en': 'Certificate directory',
+    'zh-cn': '证书目录'
+  },
+  'CertLinkDirHelp': {
+    'en': 'The Nginx certificate for port 8443 should point to <code>directory/fullchain.pem</code> and <code>directory/privkey.pem</code>. After issuance or renewal, the certificate is automatically copied to and overwrites the files here (the directory is created if it does not exist).',
+    'zh-cn': 'Nginx 8443 端口证书应指向 <code>该目录/fullchain.pem</code> 与 <code>该目录/privkey.pem</code>， 证书申请/续期后会自动复制并覆盖此处文件（目录不存在会自动创建）。'
+  },
+  'CertOwnerLabel': {
+    'en': 'Certificate owner user',
+    'zh-cn': '证书所属用户'
+  },
+  'CertOwnerPlaceholder': {
+    'en': 'e.g. pengge (leave empty so that only root can read the private key)',
+    'zh-cn': '例如: pengge（留空则仅 root 可读私钥）'
+  },
+  'CertOwnerHelp': {
+    'en': 'Fill in the user that runs Nginx when it runs as non-root (e.g. <code>brew services start nginx</code> on macOS). The program will chown the certificate to that user as root to avoid permission errors when loading the certificate.',
+    'zh-cn': 'Nginx 以非 root 运行（如 macOS 的 <code>brew services start nginx</code>）时填写其运行用户， 程序会以 root 身份把证书 chown 给该用户，避免加载证书时权限不足。'
+  },
+  'CertNginxReloadLabel': {
+    'en': 'Restart Nginx command',
+    'zh-cn': '重启 Nginx 命令'
+  },
+  'CertExtraArgsLabel': {
+    'en': 'Extra arguments',
+    'zh-cn': '附加参数'
+  },
+  'CertExtraArgsPlaceholder': {
+    'en': 'e.g. --key-type ecdsa',
+    'zh-cn': '例如: --key-type ecdsa'
+  },
+  'CertDailyRenewLabel': {
+    'en': 'Daily scheduled renewal',
+    'zh-cn': '每日定时更新'
+  },
+  'CertRenewTimeLabel': {
+    'en': 'Time',
+    'zh-cn': '时间'
+  },
+  'HourUnit': {
+    'en': 'h',
+    'zh-cn': '时'
+  },
+  'MinuteUnit': {
+    'en': 'min',
+    'zh-cn': '分'
+  },
+  'CertDeleteOldLabel': {
+    'en': 'Delete old certificates',
+    'zh-cn': '删除旧证书'
+  },
+  'CertDeleteOldHelp': {
+    'en': 'Delete the certificates for old IPv6 addresses after the new certificate is deployed successfully.',
+    'zh-cn': '新证书部署成功后删除旧 IPv6 地址对应的证书。'
+  },
+  // writing.html - 其它
+  'OthersTitle': {
+    'en': 'Others',
+    'zh-cn': '其它'
+  },
+  'PasswordPlaceholder': {
+    'en': 'Leave empty to keep the current password',
+    'zh-cn': '留空则不修改密码'
   },
 };
 
