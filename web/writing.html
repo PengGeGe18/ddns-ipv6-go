@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>IPv6-CERT</title>
+  <meta name="color-scheme" content="light dark">
+  <link class="theme" rel="stylesheet" type="text/css" href="./static/common.css" />
+  <link rel="stylesheet" href="./static/bootstrap.min.css" />
+  <link rel="stylesheet" href="./static/theme-button.css" />
+  <script src="./static/utils.js"></script>
+  <script src="./static/i18n.js"></script>
+  <script src="./static/tooltips.js"></script>
+</head>
+
+<body>
+  <header>
+    <div class="navbar navbar-dark bg-dark shadow-sm">
+      <div class="button-container container d-flex justify-content-between align-items-center flex-wrap">
+        <span class="navbar-brand d-flex align-items-center">
+          <strong>IPv6-CERT</strong>
+        </span>
+        <div class="top-actions d-flex align-items-center flex-wrap ml-auto">
+          <button data-i18n="Logs" class="btn btn-info btn-sm" id="logsBtn" data-toggle="tooltip" data-placement="bottom">
+            Logs
+          </button>
+          <span class="theme-button gg-dark-mode" data-toggle="tooltip" data-placement="bottom" data-html="true"
+            data-i18n-attr="title:themeTooltip" id="themeButton"></span>
+          <span class="badge badge-secondary">{{.Version}}</span>
+          <select class="action-button lang-select" id="langSelect" data-toggle="tooltip" data-placement="bottom"
+            data-i18n-attr="title:languageSelectTooltip" aria-label="Language">
+            <option value="zh">中文</option>
+            <option value="en">English</option>
+          </select>
+          <a href="./logout" class="action-button action-button-text logout-button" data-i18n="Logout">
+            Logout
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main role="main">
+    <div id="mask" style="visibility: hidden"></div>
+    <div class="row">
+      <div class="col-md-8 offset-md-2">
+
+        <!-- 运行状态 -->
+        <div class="portlet" style="margin-top: 15px">
+          <h5 class="portlet__head">运行状态</h5>
+          <div class="portlet__body">
+            <table class="table table-sm table-borderless mb-2">
+              <tbody>
+                <tr>
+                  <th style="width: 170px">当前 IPv4</th>
+                  <td id="stIPv4">-</td>
+                </tr>
+                <tr>
+                  <th>当前 IPv6</th>
+                  <td id="stIPv6">-</td>
+                </tr>
+                <tr>
+                  <th>上次检测</th>
+                  <td id="stLastCheck">-</td>
+                </tr>
+                <tr>
+                  <th>IPv6 最近变化</th>
+                  <td id="stLastChange">-</td>
+                </tr>
+                <tr>
+                  <th>证书包含地址</th>
+                  <td id="stCertIPs">-</td>
+                </tr>
+                <tr>
+                  <th>证书到期时间</th>
+                  <td id="stCertNotAfter">-</td>
+                </tr>
+                <tr>
+                  <th>证书任务</th>
+                  <td id="stCertTask">-</td>
+                </tr>
+                <tr>
+                  <th>下次自动更新</th>
+                  <td id="stNextRenew">-</td>
+                </tr>
+                <tr>
+                  <th>最近结果</th>
+                  <td id="stCertMessage" style="white-space: pre-wrap; word-break: break-all;">-</td>
+                </tr>
+              </tbody>
+            </table>
+            <button class="btn btn-primary btn-sm" id="checkNowBtn">立即检测</button>
+            <button class="btn btn-info btn-sm" id="renewCertBtn">立即更新证书</button>
+            <small class="form-text text-muted" style="margin-top: 8px">
+              手动更新会强制续期证书，请注意 Let's Encrypt 的频率限制。
+            </small>
+          </div>
+        </div>
+
+        <!-- IP 检测设置 -->
+        <div class="portlet">
+          <h5 class="portlet__head">IP 检测</h5>
+          <div class="portlet__body">
+            <div class="form-group row">
+              <label for="Interval" class="col-sm-2 col-form-label">检测频率</label>
+              <div class="col-sm-10">
+                <div class="input-group" style="max-width: 260px">
+                  <input type="number" class="form-control form" id="Interval" min="5" max="86400"
+                    value="{{.Conf.Interval}}" />
+                  <div class="input-group-append"><span class="input-group-text">秒</span></div>
+                </div>
+                <small class="form-text text-muted">最小 5 秒，保存后立即以新频率检测。</small>
+              </div>
+            </div>
+
+            <div id="IPv4Section">
+              <h6 style="margin-top: 18px">IPv4</h6>
+            <div class="form-group row">
+              <label for="IPv4Enable" class="col-sm-2 col-form-label">启用</label>
+              <div class="col-sm-10">
+                <input type="checkbox" class="form-check-inline" id="IPv4Enable"
+                  {{if .Conf.IPv4.Enable}}checked{{end}} />
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-2 col-form-label">获取方式</label>
+              <div class="col-sm-10">
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="IPv4GetType" id="IPv4NetInterfaceRadio"
+                    value="netInterface" {{if eq .Conf.IPv4.GetType "netInterface"}}checked{{end}} />
+                  <label class="form-check-label" for="IPv4NetInterfaceRadio">网卡</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="IPv4GetType" id="IPv4UrlRadio" value="url"
+                    {{if eq .Conf.IPv4.GetType "url"}}checked{{end}} />
+                  <label class="form-check-label" for="IPv4UrlRadio">接口</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="IPv4GetType" id="IPv4CmdRadio" value="cmd"
+                    {{if eq .Conf.IPv4.GetType "cmd"}}checked{{end}} />
+                  <label class="form-check-label" for="IPv4CmdRadio">命令</label>
+                </div>
+                <select class="form-control" id="IPv4NetInterface" data-visible="netInterface">
+                  {{range .Ipv4}}
+                  <option value="{{.Name}}" {{if eq .Name $.Conf.IPv4.NetInterface}}selected{{end}}>
+                    {{.Name}} — {{range .Address}}{{.}} {{end}}
+                  </option>
+                  {{end}}
+                </select>
+                <input type="text" class="form-control form" id="IPv4Url" data-visible="url"
+                  value="{{.Conf.IPv4.URL}}" placeholder="接口地址，多个用逗号分隔" />
+                <input type="text" class="form-control form" id="IPv4Cmd" data-visible="cmd"
+                  value="{{.Conf.IPv4.Cmd}}" placeholder="获取 IPv4 的命令" />
+              </div>
+            </div>
+            </div>
+
+            <div id="IPv6Section">
+            <h6 style="margin-top: 18px">IPv6</h6>
+            <div class="form-group row">
+              <label for="IPv6Enable" class="col-sm-2 col-form-label">启用</label>
+              <div class="col-sm-10">
+                <input type="checkbox" class="form-check-inline" id="IPv6Enable"
+                  {{if .Conf.IPv6.Enable}}checked{{end}} />
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-2 col-form-label">获取方式</label>
+              <div class="col-sm-10">
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="IPv6GetType" id="IPv6NetInterfaceRadio"
+                    value="netInterface" {{if eq .Conf.IPv6.GetType "netInterface"}}checked{{end}} />
+                  <label class="form-check-label" for="IPv6NetInterfaceRadio">网卡</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="IPv6GetType" id="IPv6UrlRadio" value="url"
+                    {{if eq .Conf.IPv6.GetType "url"}}checked{{end}} />
+                  <label class="form-check-label" for="IPv6UrlRadio">接口</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="IPv6GetType" id="IPv6CmdRadio" value="cmd"
+                    {{if eq .Conf.IPv6.GetType "cmd"}}checked{{end}} />
+                  <label class="form-check-label" for="IPv6CmdRadio">命令</label>
+                </div>
+                <select class="form-control" id="IPv6NetInterface" data-visible="netInterface">
+                  {{range .Ipv6}}
+                  <option value="{{.Name}}" {{if eq .Name $.Conf.IPv6.NetInterface}}selected{{end}}>
+                    {{.Name}} — {{range .Address}}{{.}} {{end}}
+                  </option>
+                  {{end}}
+                </select>
+                <input type="text" class="form-control form" id="IPv6Url" data-visible="url"
+                  value="{{.Conf.IPv6.URL}}" placeholder="接口地址，多个用逗号分隔" />
+                <input type="text" class="form-control form" id="IPv6Cmd" data-visible="cmd"
+                  value="{{.Conf.IPv6.Cmd}}" placeholder="获取 IPv6 的命令" />
+              </div>
+            </div>
+            <div class="form-group row" data-visible="netInterface">
+              <label for="IPv6Reg" class="col-sm-2 col-form-label">IPv6 匹配</label>
+              <div class="col-sm-10">
+                <input type="text" class="form-control form" id="IPv6Reg" value="{{.Conf.IPv6.Ipv6Reg}}"
+                  placeholder="留空使用第一个地址；@2 表示第二个地址；也可填正则表达式" />
+                <small class="form-text text-muted">网卡有多个 IPv6 时，可用 @序号 或正则表达式选择。</small>
+              </div>
+            </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Webhook -->
+        <div class="portlet">
+          <h5 class="portlet__head">Webhook 通知</h5>
+          <div class="portlet__body">
+            <div class="form-group row">
+              <label for="WebhookURL" class="col-sm-2 col-form-label">URL</label>
+              <div class="col-sm-10">
+                <input class="form-control form" id="WebhookURL" value="{{.Conf.WebhookURL}}"
+                  placeholder="IPv6 变化时请求的地址" />
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="WebhookRequestBody" class="col-sm-2 col-form-label">RequestBody</label>
+              <div class="col-sm-10">
+                <textarea class="form-control form" id="WebhookRequestBody" rows="3"
+                  placeholder='例如: {"ipv6":"#{ipv6Addr}","old":"#{oldIpv6Addr}"}'>{{.Conf.WebhookRequestBody}}</textarea>
+                <small class="form-text text-muted">
+                  留空为 GET 请求，填写则使用 POST。支持占位符：
+                  <code>#{ipv4Addr}</code> <code>#{ipv6Addr}</code> <code>#{oldIpv6Addr}</code> <code>#{timestamp}</code>
+                </small>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="WebhookHeaders" class="col-sm-2 col-form-label">Headers</label>
+              <div class="col-sm-10">
+                <textarea class="form-control form" id="WebhookHeaders" rows="2"
+                  placeholder="每行一个，例如: Authorization: Bearer xxx">{{.Conf.WebhookHeaders}}</textarea>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-2 col-form-label"></label>
+              <div class="col-sm-10">
+                <button class="btn btn-primary btn-sm" id="webhookTestBtn">测试 Webhook</button>
+                <small class="form-text text-muted">使用假数据发送一次请求，实际配置请先保存。</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 证书设置 -->
+        <div class="portlet">
+          <h5 class="portlet__head">Certbot 证书</h5>
+          <div class="portlet__body">
+            <div class="form-group row">
+              <label for="CertEnable" class="col-sm-2 col-form-label">自动申请</label>
+              <div class="col-sm-10">
+                <input type="checkbox" class="form-check-inline" id="CertEnable"
+                  {{if .Conf.Cert.Enable}}checked{{end}} />
+                <small class="form-text text-muted">IPv6 变化或证书不匹配时自动申请证书，并重启 Nginx。</small>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="CertbotPath" class="col-sm-2 col-form-label">certbot 路径</label>
+              <div class="col-sm-10">
+                <input class="form-control form" id="CertbotPath" value="{{.Conf.Cert.CertbotPath}}"
+                  placeholder="certbot 或 /usr/bin/certbot" />
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="CertEmail" class="col-sm-2 col-form-label">邮箱</label>
+              <div class="col-sm-10">
+                <input class="form-control form" id="CertEmail" value="{{.Conf.Cert.Email}}"
+                  placeholder="可选，用于证书到期提醒" />
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="CertChallenge" class="col-sm-2 col-form-label">验证方式</label>
+              <div class="col-sm-10">
+                <select class="form-control" id="CertChallenge">
+                  <option value="standalone" {{if eq .Conf.Cert.Challenge "standalone"}}selected{{end}}>
+                    standalone（临时监听 80 端口）
+                  </option>
+                  <option value="webroot" {{if eq .Conf.Cert.Challenge "webroot"}}selected{{end}}>
+                    webroot（使用已有网站目录）
+                  </option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="CertWebroot" class="col-sm-2 col-form-label">Webroot</label>
+              <div class="col-sm-10">
+                <input class="form-control form" id="CertWebroot" value="{{.Conf.Cert.Webroot}}"
+                  placeholder="/var/www/html" />
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="CertProfile" class="col-sm-2 col-form-label">Certificate Profile</label>
+              <div class="col-sm-10">
+                <input class="form-control form" id="CertProfile" value="{{.Conf.Cert.Profile}}"
+                  placeholder="shortlived" />
+                <small class="form-text text-muted">
+                  Let's Encrypt 的 IP 证书需使用 <code>shortlived</code>（certbot 5.3+）。
+                </small>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="CertLinkDir" class="col-sm-2 col-form-label">证书目录</label>
+              <div class="col-sm-10">
+                <input class="form-control form" id="CertLinkDir" value="{{.Conf.Cert.LinkDir}}" />
+                <small class="form-text text-muted">
+                  Nginx 8443 端口证书应指向 <code>该目录/fullchain.pem</code> 与 <code>该目录/privkey.pem</code>，
+                  新证书申请后会自动替换此处文件。
+                </small>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="CertNginxReloadCmd" class="col-sm-2 col-form-label">重启 Nginx 命令</label>
+              <div class="col-sm-10">
+                <input class="form-control form" id="CertNginxReloadCmd" value="{{.Conf.Cert.NginxReloadCmd}}"
+                  placeholder="systemctl restart nginx" />
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="CertExtraArgs" class="col-sm-2 col-form-label">附加参数</label>
+              <div class="col-sm-10">
+                <input class="form-control form" id="CertExtraArgs" value="{{.Conf.Cert.ExtraArgs}}"
+                  placeholder="例如: --key-type ecdsa" />
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="CertDailyRenew" class="col-sm-2 col-form-label">每日定时更新</label>
+              <div class="col-sm-10">
+                <input type="checkbox" class="form-check-inline" id="CertDailyRenew"
+                  {{if .Conf.Cert.DailyRenew}}checked{{end}} />
+                <div class="form-inline" style="margin-top: 8px">
+                  <label for="CertRenewHour" class="mr-2">时间</label>
+                  <input type="number" class="form-control form mr-2" id="CertRenewHour" min="0" max="23"
+                    style="width: 90px" value="{{.Conf.Cert.RenewHour}}" />
+                  <span class="mr-2">时</span>
+                  <input type="number" class="form-control form mr-2" id="CertRenewMinute" min="0" max="59"
+                    style="width: 90px" value="{{.Conf.Cert.RenewMinute}}" />
+                  <span>分</span>
+                </div>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="CertDeleteOld" class="col-sm-2 col-form-label">删除旧证书</label>
+              <div class="col-sm-10">
+                <input type="checkbox" class="form-check-inline" id="CertDeleteOld"
+                  {{if .Conf.Cert.DeleteOld}}checked{{end}} />
+                <small class="form-text text-muted">新证书部署成功后删除旧 IPv6 地址对应的证书。</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 其它 -->
+        <div class="portlet">
+          <h5 class="portlet__head">其它</h5>
+          <div class="portlet__body">
+            <div class="form-group row">
+              <label for="NotAllowWanAccess" class="col-sm-2 col-form-label">禁止公网访问</label>
+              <div class="col-sm-10">
+                <input type="checkbox" class="form-check-inline" id="NotAllowWanAccess"
+                  {{if .Conf.NotAllowWanAccess}}checked{{end}} />
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="Username" class="col-sm-2 col-form-label">用户名</label>
+              <div class="col-sm-10">
+                <input class="form-control form" id="Username" value="{{.Conf.Username}}" autocomplete="username" />
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="Password" class="col-sm-2 col-form-label">密码</label>
+              <div class="col-sm-10">
+                <input class="form-control form" type="password" id="Password" autocomplete="new-password"
+                  placeholder="留空则不修改密码" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary submit_btn" style="margin-bottom: 16px">保存</button>
+      </div>
+
+      <div class="logs-panel col-md-6 offset-md-3" style="visibility: hidden" id="logs-panel">
+        <textarea class="logs form-control" id="logs" readonly></textarea>
+        <button data-i18n="Clear" type="button" class="btn btn-danger btn-sm" id="clearLogBtn">Clear</button>
+        <button data-i18n="OK" type="button" class="btn btn-primary btn-sm" style="float: right" id="closeLogBtn">
+          OK
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    window.__DDNS_GO_LANG__ = "{{.Conf.Lang}}";
+  </script>
+
+  <script>
+    const currentLang = "{{.Conf.Lang}}";
+
+    const val = (id) => document.getElementById(id).value;
+    const num = (id) => parseInt(document.getElementById(id).value, 10) || 0;
+    const checked = (id) => document.getElementById(id).checked;
+    const radio = (name) => {
+      const el = document.querySelector(`input[name=${name}]:checked`);
+      return el ? el.value : "";
+    };
+
+    // 根据单选框切换显示对应输入项
+    const syncVisible = (family) => {
+      const type = radio(`${family}GetType`);
+      const section = document.getElementById(`${family}Section`);
+      section.querySelectorAll("[data-visible]").forEach(el => {
+        el.style.display = el.getAttribute("data-visible") === type ? "" : "none";
+      });
+    };
+    document.querySelectorAll("[name=IPv4GetType], [name=IPv6GetType]").forEach(el => {
+      el.addEventListener("click", () => syncVisible(el.name.startsWith("IPv4") ? "IPv4" : "IPv6"));
+    });
+    syncVisible("IPv4");
+    syncVisible("IPv6");
+
+    // 时间格式化
+    const fmtTime = (s) => {
+      if (!s) return "-";
+      const d = new Date(s);
+      if (isNaN(d.getTime()) || d.getFullYear() < 2000) return "-";
+      return d.toLocaleString();
+    };
+
+    // 刷新运行状态
+    const refreshStatus = async () => {
+      let resp;
+      try {
+        resp = await request.get("./status");
+      } catch (e) {
+        return;
+      }
+      if (!resp || typeof resp !== "object") return;
+
+      const m = resp.monitor || {};
+      const c = resp.cert || {};
+      document.getElementById("stIPv4").textContent = m.ipv4 || "-";
+      document.getElementById("stIPv6").textContent = m.ipv6 || "-";
+      document.getElementById("stLastCheck").textContent = fmtTime(m.lastCheck);
+      document.getElementById("stLastChange").textContent = fmtTime(m.lastChange);
+      document.getElementById("stCertIPs").textContent = (c.certIPs && c.certIPs.length) ? c.certIPs.join(", ") : "-";
+      document.getElementById("stCertNotAfter").textContent = fmtTime(c.notAfter);
+      document.getElementById("stNextRenew").textContent = fmtTime(c.nextRenewAt);
+      document.getElementById("stCertTask").textContent = c.running ? "运行中..." : (c.lastResult || "空闲");
+      let msg = c.lastMessage || "-";
+      if (m.lastError) msg = m.lastError + "\n" + msg;
+      document.getElementById("stCertMessage").textContent = msg;
+      if (m.checking) {
+        document.getElementById("stLastCheck").textContent += "（检测中）";
+      }
+    };
+
+    // 立即检测
+    document.getElementById("checkNowBtn").addEventListener("click", async (e) => {
+      e.preventDefault();
+      try {
+        const resp = await request.post("./checkNow", {});
+        if (resp.result !== "ok") {
+          showMessage({ content: resp.result, type: "error", duration: 4000 });
+          return;
+        }
+        showMessage({ content: "已触发检测", type: "success", duration: 1500 });
+        setTimeout(refreshStatus, 1200);
+      } catch (err) {
+        showMessage({ content: err.toString(), type: "error", duration: 4000 });
+      }
+    });
+
+    // 手动更新证书
+    document.getElementById("renewCertBtn").addEventListener("click", async (e) => {
+      e.preventDefault();
+      try {
+        const resp = await request.post("./certRenew", {});
+        if (resp.result !== "ok") {
+          showMessage({ content: resp.result, type: "error", duration: 5000 });
+          return;
+        }
+        showMessage({ content: resp.msg || "已开始更新证书", type: "success", duration: 3000 });
+        setTimeout(refreshStatus, 1500);
+      } catch (err) {
+        showMessage({ content: err.toString(), type: "error", duration: 4000 });
+      }
+    });
+
+    // 保存配置
+    document.querySelectorAll(".submit_btn").forEach(el => {
+      el.addEventListener("click", async (e) => {
+        e.preventDefault();
+        const data = {
+          Username: val("Username"),
+          Password: val("Password"),
+          Lang: currentLang,
+          NotAllowWanAccess: checked("NotAllowWanAccess"),
+          WebhookURL: val("WebhookURL"),
+          WebhookRequestBody: val("WebhookRequestBody"),
+          WebhookHeaders: val("WebhookHeaders"),
+          Interval: num("Interval"),
+          IPv4: {
+            Enable: checked("IPv4Enable"),
+            GetType: radio("IPv4GetType"),
+            URL: val("IPv4Url"),
+            NetInterface: val("IPv4NetInterface"),
+            Cmd: val("IPv4Cmd"),
+          },
+          IPv6: {
+            Enable: checked("IPv6Enable"),
+            GetType: radio("IPv6GetType"),
+            URL: val("IPv6Url"),
+            NetInterface: val("IPv6NetInterface"),
+            Cmd: val("IPv6Cmd"),
+            Ipv6Reg: val("IPv6Reg"),
+          },
+          Cert: {
+            Enable: checked("CertEnable"),
+            CertbotPath: val("CertbotPath"),
+            Email: val("CertEmail"),
+            Challenge: val("CertChallenge"),
+            Webroot: val("CertWebroot"),
+            Profile: val("CertProfile"),
+            ExtraArgs: val("CertExtraArgs"),
+            LinkDir: val("CertLinkDir"),
+            NginxReloadCmd: val("CertNginxReloadCmd"),
+            DailyRenew: checked("CertDailyRenew"),
+            RenewHour: num("CertRenewHour"),
+            RenewMinute: num("CertRenewMinute"),
+            DeleteOld: checked("CertDeleteOld"),
+          },
+        };
+
+        try {
+          const resp = await request.post("./save", data);
+          if (resp.result !== "ok") {
+            showMessage({ content: resp.result, type: "error", duration: 5000 });
+            return;
+          }
+          document.getElementById("Password").value = "";
+          showMessage({ content: "保存成功", type: "success", duration: 1500 });
+          setTimeout(refreshStatus, 1200);
+        } catch (err) {
+          showMessage({ content: err.toString(), type: "error", duration: 5000 });
+        }
+      });
+    });
+
+    // 测试 Webhook
+    document.getElementById("webhookTestBtn").addEventListener("click", async (e) => {
+      e.preventDefault();
+      try {
+        const resp = await request.post("./webhookTest", {
+          URL: val("WebhookURL"),
+          RequestBody: val("WebhookRequestBody"),
+          Headers: val("WebhookHeaders"),
+        });
+        if (resp.result !== "ok") {
+          showMessage({ content: resp.result, type: "error", duration: 5000 });
+          return;
+        }
+        showMessage({ content: resp.msg || "测试请求已发送", type: "success", duration: 3000 });
+      } catch (err) {
+        showMessage({ content: err.toString(), type: "error", duration: 5000 });
+      }
+    });
+
+    // 语言切换
+    const $langSelect = document.getElementById("langSelect");
+    $langSelect.value = (currentLang === "zh" || currentLang === "zh-cn") ? "zh" : "en";
+    $langSelect.addEventListener("change", async () => {
+      const previousLang = $langSelect.value === "zh" ? "zh" : "en";
+      try {
+        const resp = await request.post("./setLang", { Lang: $langSelect.value });
+        if (resp.result !== "ok") {
+          showMessage({ content: resp.result, type: "error", duration: 5000 });
+          $langSelect.value = previousLang;
+          return;
+        }
+        window.location.reload();
+      } catch (err) {
+        showMessage({ content: err.toString(), type: "error", duration: 5000 });
+      }
+    });
+  </script>
+
+  <!-- 日志 -->
+  <script>
+    const getLogs = async (loop = false) => {
+      let logsList = [];
+      try {
+        const resp = await request.get("./logs");
+        if (!Array.isArray(resp)) {
+          throw new Error(resp);
+        }
+        logsList = resp;
+      } catch (err) {
+        showMessage({ content: err.toString(), type: "error", duration: 5000 });
+        return;
+      } finally {
+        if (loop) {
+          setTimeout(getLogs, 5 * 1000, true);
+        }
+      }
+      const $logs = document.getElementById("logs");
+      const isBottom = $logs.scrollHeight - $logs.scrollTop - $logs.clientHeight < 10;
+      $logs.value = logsList.join("");
+      if (isBottom) {
+        $logs.scrollTop = $logs.scrollHeight;
+      }
+    };
+
+    document.getElementById("clearLogBtn").addEventListener("click", async (e) => {
+      e.preventDefault();
+      try {
+        await request.get("./clearLog");
+        getLogs();
+      } catch (err) {
+        showMessage({ content: err.toString(), type: "error", duration: 5000 });
+      }
+    });
+
+    document.querySelectorAll("#logsBtn, #closeLogBtn, #mask").forEach($el => {
+      $el.addEventListener("click", () => {
+        document.getElementById("logsBtn").classList.remove("unread");
+        if (document.getElementById("logs-panel").style.visibility === "hidden") {
+          document.getElementById("logs-panel").style.visibility = "";
+          document.getElementById("mask").style.visibility = "";
+        } else {
+          document.getElementById("logs-panel").style.visibility = "hidden";
+          document.getElementById("mask").style.visibility = "hidden";
+        }
+      });
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      getLogs(true);
+      refreshStatus();
+      setInterval(refreshStatus, 5000);
+    });
+  </script>
+
+  <script src="./static/theme.js"></script>
+</body>
+
+</html>
