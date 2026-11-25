@@ -15,11 +15,8 @@ builds:
     flags:
       - -trimpath
     goos:
-      - android
-      - linux
-      - windows
       - darwin
-      - freebsd
+      - linux
     goarch:
       - '386'
       - amd64
@@ -37,14 +34,6 @@ builds:
     gomips:
       - hardfloat
       - softfloat
-    ignore:
-      # we only need the arm64 build on android
-      - goos: android
-        goarch: arm
-      - goos: android
-        goarch: '386'
-      - goos: android
-        goarch: amd64
     ldflags:
       - -s -w -X main.version={{.Tag}} -X main.buildTime={{.Date}}
     hooks:
@@ -52,12 +41,8 @@ builds:
         - sh -c 'test -d zoneinfo || cp -r /usr/share/zoneinfo .'
 
 archives:
-  # use zip for windows archives
-  - format_overrides:
-      - goos: windows
-        format: zip
-    # this name template makes the OS and Arch compatible with the results of uname.
-    name_template: >-
+  # this name template makes the OS and Arch compatible with the results of uname.
+  - name_template: >-
       {{ .ProjectName }}_
       {{- .Version }}_
       {{- .Os }}_
