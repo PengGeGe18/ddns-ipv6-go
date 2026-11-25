@@ -73,6 +73,7 @@ func checkAndSave(request *http.Request) string {
 	conf.Cert.Email = strings.TrimSpace(conf.Cert.Email)
 	conf.Cert.Webroot = strings.TrimSpace(conf.Cert.Webroot)
 	conf.Cert.LinkDir = strings.TrimSpace(conf.Cert.LinkDir)
+	conf.Cert.Owner = strings.TrimSpace(conf.Cert.Owner)
 	conf.Cert.NginxReloadCmd = strings.TrimSpace(conf.Cert.NginxReloadCmd)
 	conf.Cert.ExtraArgs = strings.TrimSpace(conf.Cert.ExtraArgs)
 	conf.Cert.Profile = strings.TrimSpace(conf.Cert.Profile)

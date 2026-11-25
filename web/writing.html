@@ -310,7 +310,18 @@
                 <input class="form-control form" id="CertLinkDir" value="{{.Conf.Cert.LinkDir}}" />
                 <small class="form-text text-muted">
                   Nginx 8443 端口证书应指向 <code>该目录/fullchain.pem</code> 与 <code>该目录/privkey.pem</code>，
-                  新证书申请后会自动替换此处文件。
+                  证书申请/续期后会自动复制并覆盖此处文件（目录不存在会自动创建）。
+                </small>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="CertOwner" class="col-sm-2 col-form-label">证书所属用户</label>
+              <div class="col-sm-10">
+                <input class="form-control form" id="CertOwner" value="{{.Conf.Cert.Owner}}"
+                  placeholder="例如: pengge（留空则仅 root 可读私钥）" />
+                <small class="form-text text-muted">
+                  Nginx 以非 root 运行（如 macOS 的 <code>brew services start nginx</code>）时填写其运行用户，
+                  程序会以 root 身份把证书 chown 给该用户，避免加载证书时权限不足。
                 </small>
               </div>
             </div>
@@ -529,6 +540,7 @@
             Profile: val("CertProfile"),
             ExtraArgs: val("CertExtraArgs"),
             LinkDir: val("CertLinkDir"),
+            Owner: val("CertOwner"),
             NginxReloadCmd: val("CertNginxReloadCmd"),
             DailyRenew: checked("CertDailyRenew"),
             RenewHour: num("CertRenewHour"),

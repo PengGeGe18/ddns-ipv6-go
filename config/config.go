@@ -31,10 +31,12 @@ const (
 	DefaultInterval = 60
 	// DefaultCertbotPath 默认 certbot 可执行文件
 	DefaultCertbotPath = "certbot"
-	// DefaultLinkDir 默认证书软链接目录（Nginx 应指向此目录）
+	// DefaultLinkDir 默认证书部署目录（Nginx 应指向此目录）
 	DefaultLinkDir = "/etc/ssl/ddns-ipv6"
-	// DefaultNginxReloadCmd 默认 Nginx 重启命令
+	// DefaultNginxReloadCmd 默认 Nginx 重启命令(Linux)
 	DefaultNginxReloadCmd = "systemctl restart nginx"
+	// DefaultDarwinNginxReloadCmd macOS 下由 Homebrew 管理 Nginx
+	DefaultDarwinNginxReloadCmd = "brew services restart nginx"
 	// DefaultCertProfile 默认证书 Profile（Let's Encrypt IP 证书需要 shortlived）
 	DefaultCertProfile = "shortlived"
 	// LetsEncryptDir certbot 证书根目录
@@ -70,8 +72,10 @@ type CertConfig struct {
 	Profile string
 	// ExtraArgs 追加给 certbot 的参数
 	ExtraArgs string
-	// LinkDir 证书软链接目录，Nginx 指向这里即可在 IP 变化后继续生效
+	// LinkDir 证书部署目录，Nginx 指向这里即可在 IP 变化后继续生效
 	LinkDir string
+	// Owner 证书所属用户(可选)，Nginx 以非 root 运行时填写该用户以便读取私钥
+	Owner string
 	// NginxReloadCmd 证书部署后执行的 Nginx 重启命令
 	NginxReloadCmd string
 	// DailyRenew 是否每天定时更新证书
@@ -196,11 +200,12 @@ func (conf *Config) normalizeCert() {
 		conf.Cert.CertbotPath = DefaultCertbotPath
 	}
 	if strings.TrimSpace(conf.Cert.LinkDir) == "" {
-		conf.Cert.LinkDir = DefaultLinkDir
+		conf.Cert.LinkDir = defaultLinkDir()
 	}
 	if strings.TrimSpace(conf.Cert.NginxReloadCmd) == "" {
-		conf.Cert.NginxReloadCmd = DefaultNginxReloadCmd
+		conf.Cert.NginxReloadCmd = defaultNginxReloadCmd()
 	}
+	conf.Cert.Owner = strings.TrimSpace(conf.Cert.Owner)
 	if strings.TrimSpace(conf.Cert.Profile) == "" {
 		conf.Cert.Profile = DefaultCertProfile
 	}
@@ -217,6 +222,25 @@ func (conf *Config) normalizeCert() {
 	if conf.Cert.RenewMinute < 0 || conf.Cert.RenewMinute > 59 {
 		conf.Cert.RenewMinute = 0
 	}
+}
+
+// defaultLinkDir 按平台推导默认证书目录: macOS 使用 Homebrew Nginx 的 certs 目录
+func defaultLinkDir() string {
+	if runtime.GOOS != "darwin" {
+		return DefaultLinkDir
+	}
+	if _, err := os.Stat("/opt/homebrew"); err == nil {
+		return "/opt/homebrew/etc/nginx/certs"
+	}
+	return "/usr/local/etc/nginx/certs"
+}
+
+// defaultNginxReloadCmd 按平台推导默认 Nginx 重启命令
+func defaultNginxReloadCmd() string {
+	if runtime.GOOS == "darwin" {
+		return DefaultDarwinNginxReloadCmd
+	}
+	return DefaultNginxReloadCmd
 }
 
 // SaveConfig 保存配置

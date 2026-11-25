@@ -195,7 +195,7 @@ func issue(ip, oldIP string) (string, string) {
 		return ResultFailed, msg
 	}
 
-	if err := deploy(&conf, ip); err != nil {
+	if err := deploy(&conf, name); err != nil {
 		util.Log("证书部署失败: %s", err)
 		return ResultFailed, "证书部署失败: " + err.Error()
 	}
@@ -280,6 +280,12 @@ func renew(force bool) (string, string) {
 		return ResultFailed, msg
 	}
 
+	// 证书为复制部署, 续期后需重新复制到 Nginx 使用的目录
+	if err := deploy(&conf, name); err != nil {
+		util.Log("证书部署失败: %s", err)
+		return ResultFailed, "证书已更新, 但部署失败: " + err.Error()
+	}
+
 	if err := reloadNginx(&conf); err != nil {
 		util.Log("Nginx 重启失败: %s", err)
 		return ResultFailed, "证书更新完成, 但 Nginx 重启失败: " + err.Error()
@@ -287,7 +293,7 @@ func renew(force bool) (string, string) {
 
 	refreshCertInfo(&conf)
 	util.Log("证书更新完成, Nginx 已重启")
-	return ResultSuccess, "证书更新完成, 已重启 Nginx"
+	return ResultSuccess, "证书更新完成, 已重新部署并重启 Nginx"
 }
 
 // currentCertName 获取当前证书名
@@ -303,9 +309,9 @@ func currentCertName() string {
 	return ""
 }
 
-// deploy 将 certbot 生成的证书通过软链接(或复制)部署到固定目录
-func deploy(conf *config.Config, ip string) error {
-	liveDir := filepath.Join(config.LetsEncryptDir, "live", CertName(ip))
+// deploy 将 certbot 生成的证书复制到固定目录, 并按需授权给 Nginx 运行用户
+func deploy(conf *config.Config, name string) error {
+	liveDir := filepath.Join(config.LetsEncryptDir, "live", name)
 	if _, err := os.Stat(filepath.Join(liveDir, "fullchain.pem")); err != nil {
 		return fmt.Errorf("未找到证书文件: %s", err)
 	}
@@ -314,45 +320,56 @@ func deploy(conf *config.Config, ip string) error {
 		return err
 	}
 
-	for _, name := range []string{"fullchain.pem", "privkey.pem", "chain.pem"} {
-		src := filepath.Join(liveDir, name)
+	owner := strings.TrimSpace(conf.Cert.Owner)
+	for _, fileName := range []string{"fullchain.pem", "privkey.pem", "chain.pem"} {
+		src := filepath.Join(liveDir, fileName)
 		if _, err := os.Stat(src); err != nil {
 			// chain.pem 部分场景可能不存在, 跳过
-			if name == "chain.pem" {
+			if fileName == "chain.pem" {
 				continue
 			}
 			return err
 		}
-		if err := replaceLink(src, filepath.Join(conf.Cert.LinkDir, name)); err != nil {
+		mode := os.FileMode(0644)
+		if fileName == "privkey.pem" {
+			// 指定 Nginx 运行用户时, 让同用户可读; 否则仅 root 可读
+			if owner != "" {
+				mode = 0640
+			} else {
+				mode = 0600
+			}
+		}
+		if err := copyCertFile(src, filepath.Join(conf.Cert.LinkDir, fileName), mode, owner); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-// replaceLink 优先创建软链接, 失败时退化为复制文件
-func replaceLink(src, dst string) error {
-	tmp := dst + ".tmp"
-	_ = os.Remove(tmp)
-
-	if err := os.Symlink(src, tmp); err == nil {
-		_ = os.Remove(dst)
-		if err := os.Rename(tmp, dst); err == nil {
-			return nil
-		}
-		_ = os.Remove(tmp)
-	}
-
-	// 复制文件（Windows 或无权限创建软链接时）
+// copyCertFile 原子复制证书文件并设置权限/所属用户
+func copyCertFile(src, dst string, mode os.FileMode, owner string) error {
 	byt, err := os.ReadFile(src)
 	if err != nil {
 		return err
 	}
-	mode := os.FileMode(0644)
-	if strings.HasSuffix(dst, "privkey.pem") {
-		mode = 0600
+	tmp := dst + ".tmp"
+	if err := os.WriteFile(tmp, byt, mode); err != nil {
+		return err
 	}
-	return os.WriteFile(dst, byt, mode)
+	// WriteFile 受 umask 影响, 显式设置一次权限
+	if err := os.Chmod(tmp, mode); err != nil {
+		_ = os.Remove(tmp)
+		return err
+	}
+	if err := applyOwner(tmp, owner); err != nil {
+		_ = os.Remove(tmp)
+		return err
+	}
+	if err := os.Rename(tmp, dst); err != nil {
+		_ = os.Remove(tmp)
+		return err
+	}
+	return nil
 }
 
 // reloadNginx 执行配置的 Nginx 重启命令

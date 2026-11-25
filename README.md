@@ -2,6 +2,25 @@
 
 实时监测本机 IPv4/IPv6 地址，当 IPv6 地址变化时通过 Webhook 通知，并使用 certbot 自动为新的 IPv6 地址申请证书、替换旧证书，随后重启 Nginx 使证书生效。
 
+## 安装
+```
+# 1. 添加 tap（只需一次）
+brew tap PengGeGe18/tap
+
+# 2. 安装
+brew install penggege18/tap/ddns-ipv6-go
+
+# 之后的升级
+brew upgrade ddns-ipv6-go
+
+# 卸载
+brew uninstall ddns-ipv6-go
+
+# 启动 必须使用sudo启动，否则程序会因为没有权限导致无法生效
+1. sudo brew services start ddns-ipv6-go
+2. sudo ddns-ipv6-go -s install
+```
+
 ## 功能特性
 
 - 实时获取本机 IPv4 / IPv6 地址，检测频率可调（Web 界面或 `-f` 参数）
